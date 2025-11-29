@@ -1,0 +1,93 @@
+/* DashboardPage.css */
+
+.dashboard-page {
+  min-height: 100vh;
+  padding: 24px 40px 40px;
+  background: #020617;
+  color: #f9fafb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+/* Centramos header y contenido en un ancho máximo */
+.dashboard-header,
+.dashboard-main {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Header */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  gap: 16px;
+}
+
+.dashboard-title {
+  font-size: 24px;
+  margin: 0;
+}
+
+.dashboard-user-box {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.dashboard-user-email {
+  color: #9ca3af;
+}
+
+.dashboard-user-email strong {
+  color: #a5b4fc;
+}
+
+/* Botón cerrar sesión */
+
+.dashboard-logout-btn {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #ef4444;
+  background: transparent;
+  color: #fecaca;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.dashboard-logout-btn:hover {
+  background: #ef4444;
+  color: #fee2e2;
+  border-color: #b91c1c;
+}
+
+/* Contenido */
+
+.dashboard-main {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.dashboard-text {
+  color: #9ca3af;
+  font-size: 16px;
+  margin: 0;
+}
+
+.dashboard-link-row {
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+.dashboard-link-row a {
+  color: #22c55e;
+  text-decoration: none;
+}
+
+.dashboard-link-row a:hover {
+  text-decoration: underline;
+}
