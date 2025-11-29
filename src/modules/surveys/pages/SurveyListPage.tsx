@@ -1,14 +1,18 @@
 // src/modules/surveys/pages/SurveyListPage.tsx
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { QRCodeCanvas } from 'qrcode.react'
 import { useSurveys } from '../hooks/useSurveys'
 import { useAuth } from '../../../context/AuthContext'
 import { SurveyChart } from '../components/SurveyChart'
+import { supabase } from '../../../lib/supabaseClient'
 import './SurveyListPage.css'
 
 export function SurveyListPage() {
   const { status, data, error } = useSurveys()
   const { user } = useAuth()
+  const [expandedSurveys, setExpandedSurveys] = useState<Set<string>>(new Set())
+  const [deleting, setDeleting] = useState<string | null>(null)
 
   const loading = status === 'loading'
   const hasError = status === 'error'
@@ -21,6 +25,56 @@ export function SurveyListPage() {
     role: user?.role,
     isAdmin,
   })
+
+  const toggleResults = (surveyId: string) => {
+    setExpandedSurveys((prev) => {
+      const newSet = new Set(prev)
+      if (newSet.has(surveyId)) {
+        newSet.delete(surveyId)
+      } else {
+        newSet.add(surveyId)
+      }
+      return newSet
+    })
+  }
+
+  const handleDelete = async (surveyId: string, title: string) => {
+    console.log('🗑️ Iniciando eliminación:', { surveyId, title })
+    
+    if (!confirm(`¿Estás seguro de eliminar la encuesta "${title}"?\n\nEsto eliminará todas las preguntas y respuestas asociadas.`)) {
+      console.log('❌ Usuario canceló la eliminación')
+      return
+    }
+
+    console.log('✅ Usuario confirmó, procediendo a eliminar...')
+    setDeleting(surveyId)
+    
+    try {
+      console.log('📡 Ejecutando DELETE en Supabase...', { table: 'surveys', id: surveyId })
+      
+      const { data, error } = await supabase
+        .from('surveys')
+        .delete()
+        .eq('id', surveyId)
+        .select()
+
+      console.log('📊 Respuesta de Supabase:', { data, error: error?.message })
+
+      if (error) {
+        console.error('💥 Error de Supabase:', error)
+        throw error
+      }
+
+      console.log('✅ Eliminación exitosa, recargando página...')
+      // Recargar la página para actualizar la lista
+      window.location.reload()
+    } catch (err) {
+      console.error('💥 Error eliminando encuesta:', err)
+      alert('Error al eliminar la encuesta. Intenta de nuevo.')
+    } finally {
+      setDeleting(null)
+    }
+  }
 
   return (
     <div className="surveys-page">
@@ -111,23 +165,31 @@ export function SurveyListPage() {
                     <button
                       type="button"
                       className="surveys-card-btn"
-                      disabled
+                      onClick={() => toggleResults(survey.id)}
                     >
-                      Ver resultados
+                      {expandedSurveys.has(survey.id) ? 'Ocultar resultados' : 'Ver resultados'}
                     </button>
+                    
                     <button
                       type="button"
                       className="surveys-card-btn"
-                      disabled
+                      onClick={() => handleDelete(survey.id, survey.title)}
+                      disabled={deleting === survey.id}
+                      style={{
+                        backgroundColor: '#ef4444',
+                        opacity: deleting === survey.id ? 0.5 : 1,
+                      }}
                     >
-                      Editar encuesta
+                      {deleting === survey.id ? 'Eliminando...' : 'Eliminar encuesta'}
                     </button>
                   </div>
 
                   {/* Gráficos de la encuesta */}
-                  <div className="surveys-card-charts">
-                    <SurveyChart surveyId={survey.id} />
-                  </div>
+                  {expandedSurveys.has(survey.id) && (
+                    <div className="surveys-card-charts">
+                      <SurveyChart surveyId={survey.id} />
+                    </div>
+                  )}
                 </li>
               )
             })}

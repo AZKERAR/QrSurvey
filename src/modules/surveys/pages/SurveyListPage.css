@@ -143,8 +143,17 @@
   background: transparent;
   color: #e5e7eb;
   font-size: 13px;
-  cursor: not-allowed; /* por ahora */
-  opacity: 0.6;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.surveys-card-btn:hover {
+  background: #1f2937;
+}
+
+.surveys-card-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
 /* Link para volver al panel */

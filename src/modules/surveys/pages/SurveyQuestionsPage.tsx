@@ -145,6 +145,7 @@ export function SurveyQuestionsPage() {
       setError('Debes agregar al menos una pregunta antes de finalizar')
       return
     }
+    // Navegar a la lista de encuestas
     navigate('/surveys')
   }
 

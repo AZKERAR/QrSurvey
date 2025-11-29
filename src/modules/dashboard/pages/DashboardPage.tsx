@@ -1,11 +1,14 @@
 // src/modules/dashboard/pages/DashboardPage.tsx
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
+import { useSurveys } from '../../surveys/hooks/useSurveys'
+import { SurveyChart } from '../../surveys/components/SurveyChart'
 import './DashboardPage.css'
 
 export function DashboardPage() {
-  const { user, signOut } = useAuth()
+  const { user, loading, signOut } = useAuth()
   const navigate = useNavigate()
+  const { status, data: surveys } = useSurveys()
 
   const handleLogout = async () => {
     await signOut()
@@ -13,6 +16,7 @@ export function DashboardPage() {
   }
 
   const isAdmin = user?.role === 'admin'
+  const surveysLoading = status === 'loading'
 
   return (
     <div className="dashboard-page">
@@ -42,19 +46,57 @@ export function DashboardPage() {
 
       {/* Contenido principal */}
       <main className="dashboard-main">
-        <p className="dashboard-text">
-          Aquí luego mostraremos las encuestas, respuestas y métricas.
-        </p>
-
-        {isAdmin ? (
-          <p className="dashboard-link-row">
-            <Link to="/surveys">Ir a la lista de encuestas →</Link>
-          </p>
+        {loading ? (
+          <p className="dashboard-text">Cargando...</p>
+        ) : isAdmin && surveysLoading ? (
+          <p className="dashboard-text">Cargando encuestas...</p>
+        ) : isAdmin && surveys && surveys.length > 0 ? (
+          <div>
+            <h2 style={{ marginBottom: 16 }}>Tus encuestas</h2>
+            {surveys.map((survey) => (
+              <div
+                key={survey.id}
+                style={{
+                  background: '#1a1a2e',
+                  padding: 20,
+                  borderRadius: 8,
+                  marginBottom: 20,
+                }}
+              >
+                <h3 style={{ color: '#22c55e', marginBottom: 8 }}>
+                  {survey.title}
+                </h3>
+                {survey.description && (
+                  <p style={{ color: '#999', marginBottom: 16 }}>
+                    {survey.description}
+                  </p>
+                )}
+                <SurveyChart surveyId={survey.id} />
+              </div>
+            ))}
+          </div>
+        ) : isAdmin ? (
+          <div>
+            <p className="dashboard-text">
+              Aún no tienes encuestas creadas.
+            </p>
+            <p className="dashboard-link-row">
+              <Link to="/surveys">Ir a crear tu primera encuesta →</Link>
+            </p>
+          </div>
         ) : (
-          <p className="dashboard-text">
-            Tu rol actual es{' '}
-            <strong>{user?.role ?? 'respondent'}</strong>. Podrás responder
-            encuestas mediante códigos QR.
+          <div>
+            <p className="dashboard-text">
+              Tu rol actual es{' '}
+              <strong>{user?.role ?? 'respondent'}</strong>. Podrás responder
+              encuestas mediante códigos QR.
+            </p>
+          </div>
+        )}
+
+        {isAdmin && (
+          <p className="dashboard-link-row" style={{ marginTop: 24 }}>
+            <Link to="/surveys">Ver todas las encuestas →</Link>
           </p>
         )}
       </main>
