@@ -9,8 +9,8 @@ import './DashboardPage.css'
 export function DashboardPage() {
   const { user, loading, signOut } = useAuth()
   const navigate = useNavigate()
-  const { status, data: surveys } = useSurveys()
   const [refreshKey, setRefreshKey] = useState(0)
+  const { status, data: surveys } = useSurveys(refreshKey)
 
   const handleLogout = async () => {
     await signOut()
@@ -18,6 +18,7 @@ export function DashboardPage() {
   }
 
   const handleRefresh = () => {
+    console.log('🔄 Refresh button clicked, incrementing refreshKey')
     setRefreshKey(prev => prev + 1)
   }
 

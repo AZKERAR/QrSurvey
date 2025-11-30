@@ -91,7 +91,12 @@ export function SurveyListPage() {
           <Link 
             to="/dashboard" 
             className="surveys-create-btn"
-            style={{ backgroundColor: '#374151', textDecoration: 'none' }}
+            style={{ 
+              backgroundColor: '#22c55e',
+              color: '#022c22',
+              textDecoration: 'none',
+              opacity: 1
+            }}
           >
             ← Volver al panel
           </Link>

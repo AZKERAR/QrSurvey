@@ -15,7 +15,7 @@ export interface SurveyRow {
 
 type Status = 'idle' | 'loading' | 'success' | 'error'
 
-export function useSurveys() {
+export function useSurveys(forceReload?: number) {
   const { user } = useAuth()
   const [status, setStatus] = useState<Status>('idle')
   const [data, setData] = useState<SurveyRow[]>([])
@@ -27,6 +27,7 @@ export function useSurveys() {
     let isMounted = true
 
     const load = async () => {
+      console.log('🔄 useSurveys: Loading surveys...', { forceReload })
       setStatus('loading')
       setError(null)
 
@@ -38,12 +39,25 @@ export function useSurveys() {
         .eq('owner_id', user.id)
         .order('created_at', { ascending: false })
 
+      console.log('📡 Raw Supabase response:', { data, error, count: data?.length })
+      if (data && data.length > 0) {
+        data.forEach((survey, index) => {
+          console.log(`📋 Survey ${index}:`, {
+            id: survey.id,
+            title: survey.title,
+            slug: survey.public_slug,
+            created: survey.created_at
+          })
+        })
+      }
+
       if (!isMounted) return
 
       if (error) {
         setError(error.message)
         setStatus('error')
       } else {
+        console.log('✅ useSurveys: Loaded surveys:', data)
         setData(data ?? [])
         setStatus('success')
       }
@@ -54,7 +68,7 @@ export function useSurveys() {
     return () => {
       isMounted = false
     }
-  }, [user])
+  }, [user, forceReload])
 
   return { status, data, error }
 }
