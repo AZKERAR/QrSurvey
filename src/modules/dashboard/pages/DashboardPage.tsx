@@ -76,27 +76,31 @@ export function DashboardPage() {
                 🔄 Actualizar resultados
               </button>
             </div>
-            {surveys.map((survey) => (
-              <div
-                key={survey.id}
-                style={{
-                  background: '#1a1a2e',
-                  padding: 20,
-                  borderRadius: 8,
-                  marginBottom: 20,
-                }}
-              >
-                <h3 style={{ color: '#22c55e', marginBottom: 8 }}>
-                  {survey.title}
-                </h3>
-                {survey.description && (
-                  <p style={{ color: '#999', marginBottom: 16 }}>
-                    {survey.description}
-                  </p>
-                )}
-                <SurveyChart key={`${survey.id}-${refreshKey}`} surveyId={survey.id} />
-              </div>
-            ))}
+            {surveys.map((survey) => {
+              console.log('🎯 Dashboard rendering survey:', { id: survey.id, title: survey.title, slug: survey.public_slug })
+              return (
+                <div
+                  key={survey.id}
+                  style={{
+                    background: '#1a1a2e',
+                    padding: 20,
+                    borderRadius: 8,
+                    marginBottom: 20,
+                  }}
+                >
+                  <h3 style={{ color: '#22c55e', marginBottom: 8 }}>
+                    {survey.title}
+                  </h3>
+                  {survey.description && (
+                    <p style={{ color: '#999', marginBottom: 16 }}>
+                      {survey.description}
+                    </p>
+                  )}
+                  <p style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>ID: {survey.id}</p>
+                  <SurveyChart key={`${survey.id}-${refreshKey}`} surveyId={survey.id} />
+                </div>
+              )
+            })}
           </div>
         ) : isAdmin ? (
           <div>

@@ -87,15 +87,25 @@ export function SurveyListPage() {
           </p>
         </div>
 
-        {isAdmin ? (
-          <Link to="/surveys/new" className="surveys-create-btn">
-            + Nueva encuesta
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <Link 
+            to="/dashboard" 
+            className="surveys-create-btn"
+            style={{ backgroundColor: '#374151', textDecoration: 'none' }}
+          >
+            ← Volver al panel
           </Link>
-        ) : (
-          <button className="surveys-create-btn" type="button" disabled>
-            Solo administradores pueden crear encuestas
-          </button>
-        )}
+          
+          {isAdmin ? (
+            <Link to="/surveys/new" className="surveys-create-btn">
+              + Nueva encuesta
+            </Link>
+          ) : (
+            <button className="surveys-create-btn" type="button" disabled>
+              Solo administradores pueden crear encuestas
+            </button>
+          )}
+        </div>
       </header>
 
       {/* CONTENIDO PRINCIPAL */}
