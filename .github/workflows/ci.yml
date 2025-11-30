@@ -1,0 +1,122 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-analyze:
+    name: Build, Lint & SonarCloud Analysis
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for better SonarCloud analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Get pnpm store directory
+        shell: pwsh
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $env:GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint
+        run: pnpm exec eslint . --max-warnings 0
+        continue-on-error: true
+
+      - name: Build project
+        run: pnpm build
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=AZKERAR_QrSurvey
+            -Dsonar.organization=azkerar
+
+  deploy-production:
+    name: Deploy to Vercel Production
+    runs-on: ubuntu-latest
+    needs: build-and-analyze
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build Project Artifacts
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy to Vercel Production
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  deploy-preview:
+    name: Deploy to Vercel Preview
+    runs-on: ubuntu-latest
+    needs: build-and-analyze
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build Project Artifacts
+        run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy to Vercel Preview
+        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
