@@ -33,34 +33,45 @@ export function SurveyChart({ surveyId }: SurveyChartProps) {
 
   useEffect(() => {
     const loadData = async () => {
+      console.log('📊 SurveyChart: Starting loadData for surveyId:', surveyId)
       setLoading(true)
       setError(null)
 
       try {
         // 1. Obtener preguntas de la encuesta
+        console.log('📝 Step 1: Fetching questions for survey:', surveyId)
         const { data: questions, error: questionsError } = await supabase
           .from('questions')
           .select('id, question_text, options')
           .eq('survey_id', surveyId)
           .order('order', { ascending: true })
 
+        console.log('📝 Questions result:', { questions, error: questionsError?.message })
+
         if (questionsError) throw questionsError
 
         if (!questions || questions.length === 0) {
+          console.log('⚠️ No questions found for survey:', surveyId)
           setChartData([])
           setLoading(false)
           return
         }
 
+        console.log(`✅ Found ${questions.length} questions`)
+
         // 2. Obtener respuestas
+        console.log('💬 Step 2: Fetching responses for survey:', surveyId)
         const { data: responses, error: responsesError } = await supabase
           .from('responses')
           .select('id')
           .eq('survey_id', surveyId)
 
+        console.log('💬 Responses result:', { count: responses?.length, error: responsesError?.message })
+
         if (responsesError) throw responsesError
 
         if (!responses || responses.length === 0) {
+          console.log('⚠️ No responses found, showing empty chart')
           // No hay respuestas aún, mostrar opciones con 0
           const emptyChartData = questions.map((q) => ({
             question: q.question_text,
@@ -78,12 +89,16 @@ export function SurveyChart({ surveyId }: SurveyChartProps) {
         }
 
         const responseIds = responses.map((r) => r.id)
+        console.log('✅ Found responses, IDs:', responseIds)
 
         // 3. Obtener las respuestas individuales
+        console.log('🎯 Step 3: Fetching answers for response_ids:', responseIds)
         const { data: answers, error: answersError } = await supabase
           .from('response_answers')
           .select('question_id, answer_value')
           .in('response_id', responseIds)
+
+        console.log('🎯 Answers result:', { count: answers?.length, error: answersError?.message, answers })
 
         if (answersError) throw answersError
 
@@ -119,9 +134,11 @@ export function SurveyChart({ surveyId }: SurveyChartProps) {
           }
         })
 
+        console.log('📈 Step 4: Processed chart data:', processedData)
         setChartData(processedData)
+        console.log('✅ SurveyChart: Load complete, chart data set')
       } catch (err) {
-        console.error('Error loading chart data:', err)
+        console.error('💥 Error loading chart data:', err)
         setError(
           err instanceof Error ? err.message : 'Error cargando datos'
         )
@@ -130,6 +147,7 @@ export function SurveyChart({ surveyId }: SurveyChartProps) {
       }
     }
 
+    console.log('🔄 SurveyChart useEffect triggered, calling loadData()')
     loadData()
   }, [surveyId])
 
