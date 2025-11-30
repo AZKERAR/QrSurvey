@@ -1,4 +1,5 @@
 // src/modules/dashboard/pages/DashboardPage.tsx
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../../context/AuthContext'
 import { useSurveys } from '../../surveys/hooks/useSurveys'
@@ -9,10 +10,15 @@ export function DashboardPage() {
   const { user, loading, signOut } = useAuth()
   const navigate = useNavigate()
   const { status, data: surveys } = useSurveys()
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const handleLogout = async () => {
     await signOut()
     navigate('/login', { replace: true })
+  }
+
+  const handleRefresh = () => {
+    setRefreshKey(prev => prev + 1)
   }
 
   const isAdmin = user?.role === 'admin'
@@ -52,7 +58,24 @@ export function DashboardPage() {
           <p className="dashboard-text">Cargando encuestas...</p>
         ) : isAdmin && surveys && surveys.length > 0 ? (
           <div>
-            <h2 style={{ marginBottom: 16 }}>Tus encuestas</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h2 style={{ margin: 0 }}>Tus encuestas</h2>
+              <button
+                onClick={handleRefresh}
+                style={{
+                  padding: '8px 16px',
+                  background: '#22c55e',
+                  color: '#022c22',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                }}
+              >
+                🔄 Actualizar resultados
+              </button>
+            </div>
             {surveys.map((survey) => (
               <div
                 key={survey.id}
@@ -71,7 +94,7 @@ export function DashboardPage() {
                     {survey.description}
                   </p>
                 )}
-                <SurveyChart surveyId={survey.id} />
+                <SurveyChart key={`${survey.id}-${refreshKey}`} surveyId={survey.id} />
               </div>
             ))}
           </div>

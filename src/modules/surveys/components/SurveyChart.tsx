@@ -191,6 +191,7 @@ export function SurveyChart({ surveyId }: SurveyChartProps) {
                     color: '#fff',
                   }}
                   labelStyle={{ color: '#22c55e' }}
+                  formatter={(value: number) => [`${value} respuestas`, '']}
                 />
                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                   {item.data.map((_, idx) => (
