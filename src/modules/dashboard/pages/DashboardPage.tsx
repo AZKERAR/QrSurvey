@@ -60,18 +60,28 @@ export function DashboardPage() {
         ) : isAdmin && surveys && surveys.length > 0 ? (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h2 style={{ margin: 0 }}>Tus encuestas</h2>
+              <h2 style={{ margin: 0, color: '#ffffff', textShadow: '0 2px 8px rgba(0,0,0,0.2)', fontWeight: 700 }}>Tus encuestas</h2>
               <button
                 onClick={handleRefresh}
                 style={{
-                  padding: '8px 16px',
-                  background: '#22c55e',
-                  color: '#022c22',
-                  border: 'none',
-                  borderRadius: '6px',
+                  padding: '10px 20px',
+                  background: 'rgba(255, 255, 255, 0.95)',
+                  color: '#667eea',
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  borderRadius: '8px',
                   cursor: 'pointer',
                   fontSize: '14px',
-                  fontWeight: 600,
+                  fontWeight: 700,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px)'
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.2)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
                 }}
               >
                 🔄 Actualizar resultados
@@ -83,21 +93,23 @@ export function DashboardPage() {
                 <div
                   key={survey.id}
                   style={{
-                    background: '#1a1a2e',
-                    padding: 20,
-                    borderRadius: 8,
+                    background: 'rgba(102, 126, 234, 0.1)',
+                    padding: 24,
+                    borderRadius: 16,
                     marginBottom: 20,
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+                    border: '1px solid rgba(102, 126, 234, 0.2)',
                   }}
                 >
-                  <h3 style={{ color: '#22c55e', marginBottom: 8 }}>
+                  <h3 style={{ color: '#1f2937', marginBottom: 8, fontWeight: 600 }}>
                     {survey.title}
                   </h3>
                   {survey.description && (
-                    <p style={{ color: '#999', marginBottom: 16 }}>
+                    <p style={{ color: '#6b7280', marginBottom: 16 }}>
                       {survey.description}
                     </p>
                   )}
-                  <p style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>ID: {survey.id}</p>
+                  <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 16 }}>ID: {survey.id}</p>
                   <SurveyChart key={`${survey.id}-${refreshKey}`} surveyId={survey.id} />
                 </div>
               )

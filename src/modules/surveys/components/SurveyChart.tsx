@@ -169,7 +169,7 @@ export function SurveyChart({ surveyId }: SurveyChartProps) {
 
   return (
     <div style={{ marginTop: 24 }}>
-      <h3 style={{ fontSize: 16, marginBottom: 16, color: '#fff' }}>
+      <h3 style={{ fontSize: 18, marginBottom: 16, color: '#1f2937', fontWeight: 600 }}>
         Resultados de la encuesta
       </h3>
 
@@ -178,37 +178,39 @@ export function SurveyChart({ surveyId }: SurveyChartProps) {
           key={index}
           style={{
             marginBottom: 32,
-            padding: 16,
-            background: '#0f0f1e',
-            borderRadius: 8,
+            padding: 20,
+            background: '#f9fafb',
+            borderRadius: 12,
+            border: '1px solid #e5e7eb',
           }}
         >
-          <h4 style={{ fontSize: 14, marginBottom: 16, color: '#22c55e' }}>
+          <h4 style={{ fontSize: 15, marginBottom: 16, color: '#667eea', fontWeight: 600 }}>
             {item.question}
           </h4>
 
           {item.data.length > 0 ? (
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={item.data}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#333" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#d1d5db" />
                 <XAxis
                   dataKey="option"
-                  stroke="#999"
-                  tick={{ fill: '#999', fontSize: 12 }}
+                  stroke="#6b7280"
+                  tick={{ fill: '#4b5563', fontSize: 12 }}
                 />
                 <YAxis
-                  stroke="#999"
-                  tick={{ fill: '#999', fontSize: 12 }}
+                  stroke="#6b7280"
+                  tick={{ fill: '#4b5563', fontSize: 12 }}
                   allowDecimals={false}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: '#1a1a2e',
-                    border: '1px solid #333',
-                    borderRadius: 4,
-                    color: '#fff',
+                    backgroundColor: '#ffffff',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 8,
+                    color: '#1f2937',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                   }}
-                  labelStyle={{ color: '#22c55e' }}
+                  labelStyle={{ color: '#667eea', fontWeight: 600 }}
                   formatter={(value: number) => [`${value} respuestas`, '']}
                 />
                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
@@ -219,7 +221,7 @@ export function SurveyChart({ surveyId }: SurveyChartProps) {
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <p style={{ color: '#999', fontSize: 12 }}>
+            <p style={{ color: '#6b7280', fontSize: 12 }}>
               No hay opciones para esta pregunta.
             </p>
           )}
