@@ -92,16 +92,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state changed:', event)
-      // Solo recargar en eventos específicos, no en SIGNED_IN inicial
+      
+      // SIGNED_OUT: limpiar usuario
       if (event === 'SIGNED_OUT') {
-        if (isMounted) setUser(null)
-      } else if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-        const u = await loadCurrentUser()
-        if (isMounted) setUser(u)
+        if (isMounted) {
+          setUser(null)
+          setLoading(false)
+        }
+        return
       }
-      // Para SIGNED_IN, el signIn() ya maneja el setUser
+      
+      // TOKEN_REFRESHED: actualizar datos del usuario
+      if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        const u = await loadCurrentUser()
+        if (isMounted) {
+          setUser(u)
+          setLoading(false)
+        }
+        return
+      }
+      
+      // SIGNED_IN: IGNORAR porque signIn() ya maneja setUser
+      // Esto evita el bucle infinito
+      if (event === 'SIGNED_IN') {
+        console.log('SIGNED_IN event ignored - handled by signIn() function')
+        return
+      }
     })
 
     return () => {
