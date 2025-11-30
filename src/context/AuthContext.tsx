@@ -92,7 +92,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, _session) => {
+    } = supabase.auth.onAuthStateChange(async (event) => {
       console.log('Auth state changed:', event)
       
       // SIGNED_OUT: limpiar usuario
